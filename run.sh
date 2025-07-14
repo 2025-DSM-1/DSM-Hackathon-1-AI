@@ -1,12 +1,12 @@
 #!/bin/bash
 
+# 실행 권한 자동 부여 (외부 환경 대응)
+chmod +x "$0"
+
 export PATH=$PATH:/opt/render/.local/bin
 
-# 기존 가상환경 및 패키지 삭제 (Render 환경에서 강제 초기화)
-rm -rf .venv
-
-source .venv/bin/activate
-# 필요한 패키지 설치
+# 패키지 설치
+pip3 install --upgrade pip
 pip3 install --user -r requirements.txt
 
 # 서버 실행
