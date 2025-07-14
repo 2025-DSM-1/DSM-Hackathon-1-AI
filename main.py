@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # 환경 변수 로드
 load_dotenv()
 
+# FastAPI 앱 생성
 app = FastAPI(
     title="법안 요약 AI API",
     description="법안 입력받아 AI가 요약해주는 서비스",
@@ -47,13 +48,9 @@ class BillResponse(BaseModel):
 
 @app.post("/bill", response_model=BillResponse)
 async def bill(request: BillRequest):
-    """
-    법안 제목을 받아서 AI가 요약해주는 엔드포인트
-    """
     try:
         logger.info(f"법안 분석 요청: {request.billTitle}")
-        
-        # 더 구체적인 프롬프트 작성
+
         prompt = f"""
 다음 법안에 대해 간결하고 명확하게 요약해주세요:
 
@@ -70,28 +67,21 @@ async def bill(request: BillRequest):
 
         model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(prompt)
-        
+
         if not response.text:
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
-        
+
         logger.info("법안 분석 완료")
         return BillResponse(content=response.text, success=True)
-        
+
     except Exception as e:
         logger.error(f"법안 분석 중 오류 발생: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"법안 분석 중 오류가 발생했습니다: {str(e)}")
+        raise HTTPException(status_code=500, detail="법안 분석 중 오류가 발생했습니다.")
 
 @app.get("/")
 async def root():
-    """
-    서버 상태 확인 엔드포인트
-    """
     return {
         "message": "법안 요약 AI 서버가 실행 중입니다.",
         "version": "1.0.0",
         "status": "healthy"
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
