@@ -7,8 +7,7 @@ rm -rf .venv
 
 source .venv/bin/activate
 # 필요한 패키지 설치
-pip install --upgrade pip
-pip install --user -r requirements.txt
+pip3 install --user -r requirements.txt
 
 # 서버 실행
 uvicorn main:app --host 0.0.0.0 --port 8000
