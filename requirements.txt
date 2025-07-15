@@ -1,8 +1,5 @@
-fastapi
+fastapi[all]
 uvicorn
 google-generativeai
 pydantic
 python-dotenv 
-typing-extensions
-logging
-os
