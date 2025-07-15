@@ -51,17 +51,17 @@ async def law(request: BillRequest, id: str):
         logger.info(f"법안 분석 요청: {request.lawModifeidContent}")
 
         prompt = f"""
-다음 법안에 대해 간결하고 명확하게 요약해주세요:
+        다음 법안에 대해 간결하고 명확하게 요약해주세요:
 
-법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifeidContent}
 
-요약 시 다음 사항을 포함해주세요:
-1. 법안의 주요 목적
-2. 핵심 내용
-3. 예상되는 영향
-4. 주요 변경사항
+        요약 시 다음 사항을 포함해주세요:
+        1. 법안의 주요 목적
+        2. 핵심 내용
+        3. 예상되는 영향
+        4. 주요 변경사항
 
-간결하고 이해하기 쉽게 3줄 이내로 작성해주세요.
+        간결하고 이해하기 쉽게 3줄 이내로 작성해주세요.
         """
 
         model = genai.GenerativeModel("gemini-2.0-flash")
@@ -73,6 +73,8 @@ async def law(request: BillRequest, id: str):
         logger.info("법안 분석 완료")
         return BillResponse(lawSummary=response.text)
 
+    except Exception:
+        raise HTTPException(status_code=404, detail="해당 id의 법안을 찾을 수 없습니다.")
     except Exception as e:
         logger.error(f"법안 분석 중 오류 발생: {str(e)}")
         raise HTTPException(status_code=500, detail="법안 분석 중 오류가 발생했습니다.")
