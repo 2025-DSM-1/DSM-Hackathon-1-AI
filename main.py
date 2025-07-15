@@ -71,7 +71,7 @@ async def law(request: BillRequest):
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
 
         logger.info("법안 분석 완료")
-        return BillResponse(content=response.text)
+        return BillResponse(lawSummary=response.text)
 
     except Exception as e:
         logger.error(f"법안 분석 중 오류 발생: {str(e)}")
