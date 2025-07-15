@@ -40,20 +40,20 @@ genai.configure(api_key=GOOGLE_API_KEY)
 
 # 데이터 모델 정의
 class BillRequest(BaseModel):
-    billTitle: str
+    lawModifeidContent: str
 
 class BillResponse(BaseModel):
-    content: str = Field(..., description="AI가 생성한 법안 요약")
+    lawSummary: str = Field(..., description="AI가 생성한 법안 요약")
 
-@app.post("/bill", response_model=BillResponse)
-async def bill(request: BillRequest):
+@app.post("/law/summary", response_model=BillResponse)
+async def law(request: BillRequest):
     try:
-        logger.info(f"법안 분석 요청: {request.billTitle}")
+        logger.info(f"법안 분석 요청: {request.lawModifeidContent}")
 
         prompt = f"""
 다음 법안에 대해 간결하고 명확하게 요약해주세요:
 
-법안 제목: {request.billTitle}
+법안 제목: {request.lawModifeidContent}
 
 요약 시 다음 사항을 포함해주세요:
 1. 법안의 주요 목적
@@ -61,7 +61,7 @@ async def bill(request: BillRequest):
 3. 예상되는 영향
 4. 주요 변경사항
 
-간결하고 이해하기 쉽게 작성해주세요.
+간결하고 이해하기 쉽게 3줄 이내로 작성해주세요.
         """
 
         model = genai.GenerativeModel("gemini-2.0-flash")
