@@ -44,6 +44,8 @@ class BillResponse(BaseModel):
     lawSummary: str = Field(..., description="AI가 생성한 법안 요약")
     backgroundInfo: str = Field(..., description="법안 배경 정보")
     example: str = Field(..., description="법안 예시")
+    agreeLogic: str = Field(..., description="법안에 대한 찬성 논리")
+    disagreeLogic: str = Field(..., description="법안에 대한 반대 논리")
 
 
 @app.post("/law/summary", response_model=BillResponse)
@@ -81,12 +83,29 @@ async def law(request: BillRequest):
         반드시 한가지여야합니다.
         """
 
+        agreeLogicPrompt = f"""
+        다음 법안에 대한 찬성 논리를 작성해주세요:
+        법안 제목: {request.lawModifeidContent}
+        찬성 논리는 법안의 장점, 사회적 필요성, 예상되는 긍정적 영향 등을 포함해야 합니다.
+        가능한 한 설득력 있고 논리적으로 작성해주세요.
+        """
+        disagreeLogicPrompt = f"""
+        다음 법안에 대한 반대 논리를 작성해주세요:
+        법안 제목: {request.lawModifeidContent}
+        반대 논리는 법안의 단점, 사회적 우려, 예상되는 부정적 영향 등을 포함해야 합니다.
+        가능한 한 설득력 있고 논리적으로 작성해주세요.
+        """
+
         essentialPrompt = "*, **, #, ##과 같은 마크다운은 반드시 사용하지마세요."
         model = genai.GenerativeModel("gemini-2.0-flash")
 
         summaryResponse = model.generate_content(essentialPrompt + summaryPrompt)
         backgroundResponse = model.generate_content(essentialPrompt + backgroundPrompt)
         exampleResponse = model.generate_content(essentialPrompt + examplePrompt)
+        agreeLogicResponse = model.generate_content(essentialPrompt + agreeLogicPrompt)
+        disagreeLogicResponse = model.generate_content(
+            essentialPrompt + disagreeLogicPrompt
+        )
 
         if not summaryResponse.text:
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
@@ -96,6 +115,8 @@ async def law(request: BillRequest):
             lawSummary=summaryResponse.text,
             backgroundInfo=backgroundResponse.text,
             example=exampleResponse.text,
+            agreeLogic=agreeLogicResponse.text,
+            disagreeLogic=disagreeLogicResponse.text,
         )
 
     except Exception as e:
