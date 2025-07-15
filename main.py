@@ -45,8 +45,8 @@ class BillRequest(BaseModel):
 class BillResponse(BaseModel):
     lawSummary: str = Field(..., description="AI가 생성한 법안 요약")
 
-@app.post("/law/summary", response_model=BillResponse)
-async def law(request: BillRequest):
+@app.post("/law/{id}/summary", response_model=BillResponse)
+async def law(request: BillRequest, id: str):
     try:
         logger.info(f"법안 분석 요청: {request.lawModifeidContent}")
 
