@@ -44,7 +44,6 @@ class BillRequest(BaseModel):
 
 class BillResponse(BaseModel):
     content: str = Field(..., description="AI가 생성한 법안 요약")
-    success: bool = Field(..., description="요청 성공 여부")
 
 @app.post("/bill", response_model=BillResponse)
 async def bill(request: BillRequest):
@@ -72,7 +71,7 @@ async def bill(request: BillRequest):
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
 
         logger.info("법안 분석 완료")
-        return BillResponse(content=response.text, success=True)
+        return BillResponse(content=response.text)
 
     except Exception as e:
         logger.error(f"법안 분석 중 오류 발생: {str(e)}")
@@ -82,6 +81,4 @@ async def bill(request: BillRequest):
 async def root():
     return {
         "message": "법안 요약 AI 서버가 실행 중입니다.",
-        "version": "1.0.0",
-        "status": "healthy"
     }
