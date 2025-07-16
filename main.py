@@ -56,22 +56,21 @@ class BillResponse(BaseModel):
 
 
 def clean_markdown(text):
-    # 마크다운 기호 제거
+    # 모든 마크다운 기호 제거
     text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)  # **굵은 글씨** 제거
     text = re.sub(r"\*(.*?)\*", r"\1", text)  # *기울임체* 제거
+    text = re.sub(r"__(.*?)__", r"\1", text)  # __굵은 글씨__ 제거
+    text = re.sub(r"_(.*?)_", r"\1", text)  # _기울임체_ 제거
+    text = re.sub(r"~~(.*?)~~", r"\1", text)  # ~~취소선~~ 제거
     text = re.sub(r"#+\s", "", text)  # # 제목 제거
-    text = re.sub(r"`(.*?)`", r"\1", text)  # `코드` 제거
-    text = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", text)  # [링크](url) 제거
+    text = re.sub(r"`{1,3}(.*?)`{1,3}", r"\1", text)  # `코드` 및 ```코드블록``` 제거
     text = re.sub(r"---", "", text)  # 구분선 제거
-    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)  # 코드 블록 제거
-
-    # 글머리 기호 제거 및 정리
+    text = re.sub(r">+\s?", "", text)  # 인용문 제거
     text = re.sub(
-        r"^\s*[\*\-•]\s+", "", text, flags=re.MULTILINE
-    )  # 줄 시작의 글머리 기호 제거
-    text = re.sub(
-        r"\n\s*[\*\-•]\s+", "\n", text
-    )  # 줄 중간의 글머리 기호를 줄바꿈으로 변경
+        r"^\s*[\*\-\+\•]\s+", "", text, flags=re.MULTILINE
+    )  # 글머리 기호 제거
+    text = re.sub(r"\n\s*[\*\-\+\•]\s+", "\n", text)  # 줄 중간 글머리 기호 제거
+    text = re.sub(r"\|", "", text)  # 표 제거
 
     # 빈 줄 정리
     text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)  # 3개 이상 연속된 줄바꿈을 2개로 정리
