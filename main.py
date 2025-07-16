@@ -38,7 +38,7 @@ model = genai.GenerativeModel("gemini-2.0-flash-lite")
 
 # 데이터 모델 정의
 class BillRequest(BaseModel):
-    lawModifeidContent: str
+    lawModifieldContent: str
 
 
 class BillResponse(BaseModel):
