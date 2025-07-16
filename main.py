@@ -99,9 +99,10 @@ async def law(request: BillRequest):
 
         간결하고 이해하기 쉽게 100자 이내로 3문장으로 작성해주세요.
         """
+        summaryResponse1 = model.generate_content(summaryPrompt1)
 
         summaryPrompt2 = f"""
-        {summaryPrompt1}을 한문장으로 요약한 내용을 작성해주세요.
+        {summaryResponse1}을 한문장으로 요약한 내용을 작성해주세요.
         """
 
         backgroundPrompt = f"""
@@ -134,7 +135,6 @@ async def law(request: BillRequest):
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
-        summaryResponse1 = model.generate_content(summaryPrompt1)
         summaryResponse2 = model.generate_content(summaryPrompt2)
         backgroundResponse = model.generate_content(backgroundPrompt)
         exampleResponse = model.generate_content(examplePrompt)
