@@ -33,7 +33,7 @@ if not GOOGLE_API_KEY:
     raise ValueError("API_KEY 환경변수를 설정해주세요.")
 
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash-lite")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 
 # 데이터 모델 정의
