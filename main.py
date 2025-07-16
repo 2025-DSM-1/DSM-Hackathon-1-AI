@@ -33,6 +33,7 @@ if not GOOGLE_API_KEY:
     raise ValueError("API_KEY 환경변수를 설정해주세요.")
 
 genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel("gemini-2.0-flash-lite")
 
 
 # 데이터 모델 정의
@@ -97,8 +98,7 @@ async def law(request: BillRequest):
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
-        essentialPrompt = "*, **, #, ##과 같은 마크다운은 반드시 사용하지마세요."
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        essentialPrompt = "*, **, #, ##과 같은 마크다운은 반드시 사용하지마세요. 어떠한 경우에도 사용하지 마세요"
 
         summaryResponse = model.generate_content(essentialPrompt + summaryPrompt)
         backgroundResponse = model.generate_content(essentialPrompt + backgroundPrompt)
