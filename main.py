@@ -96,12 +96,12 @@ async def law(request: BillRequest):
         3. 예상되는 영향
         4. 주요 변경사항
 
-        간결하고 이해하기 쉽게 100자 이내로 3문장으로 작성해주세요.
+        간결하고 이해하기 쉽게 반드시 3문장으로 작성해주세요.
         """
         summaryResponse1 = model.generate_content(summaryPrompt1)
 
         summaryPrompt2 = f"""
-        {summaryResponse1}을 한문장으로 요약한 내용을 작성해주세요.
+        {summaryResponse1}을 반드시 한문장으로 요약한 내용을 작성해주세요.
         """
 
         backgroundPrompt = f"""
