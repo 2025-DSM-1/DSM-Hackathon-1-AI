@@ -152,7 +152,7 @@ async def law(request: BillRequest):
             if s.strip()
         ]
         return BillResponse(
-            lawContent=clean_markdown(summaryResponse1.text),
+            lawContent=clean_markdown(summaryResponse2.text),
             lawSummaryContent=summary_elements,
             backgroundInfo=clean_markdown(backgroundResponse.text),
             example=clean_markdown(exampleResponse.text),
