@@ -134,14 +134,12 @@ async def law(request: BillRequest):
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
-        summaryResponse1 = model.generate_content(clean_markdown(summaryPrompt1))
-        summaryResponse2 = model.generate_content(clean_markdown(summaryPrompt2))
-        backgroundResponse = model.generate_content(clean_markdown(backgroundPrompt))
-        exampleResponse = model.generate_content(clean_markdown(examplePrompt))
-        agreeLogicResponse = model.generate_content(clean_markdown(agreeLogicPrompt))
-        disagreeLogicResponse = model.generate_content(
-            clean_markdown(disagreeLogicPrompt)
-        )
+        summaryResponse1 = model.generate_content(summaryPrompt1)
+        summaryResponse2 = model.generate_content(summaryPrompt2)
+        backgroundResponse = model.generate_content(backgroundPrompt)
+        exampleResponse = model.generate_content(examplePrompt)
+        agreeLogicResponse = model.generate_content(agreeLogicPrompt)
+        disagreeLogicResponse = model.generate_content(disagreeLogicPrompt)
 
         if not summaryResponse1.text:
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
@@ -154,12 +152,12 @@ async def law(request: BillRequest):
             if s.strip()
         ]
         return BillResponse(
-            lawContent=summaryResponse1.text,
+            lawContent=clean_markdown(summaryResponse1.text),
             lawSummaryContent=summary_elements,
-            backgroundInfo=backgroundResponse.text,
-            example=exampleResponse.text,
-            agreeLogic=agreeLogicResponse.text,
-            disagreeLogic=disagreeLogicResponse.text,
+            backgroundInfo=clean_markdown(backgroundResponse.text),
+            example=clean_markdown(exampleResponse.text),
+            agreeLogic=clean_markdown(agreeLogicResponse.text),
+            disagreeLogic=clean_markdown(disagreeLogicResponse.text),
         )
 
     except Exception as e:
