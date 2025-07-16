@@ -84,13 +84,14 @@ async def law(request: BillRequest):
         """
 
         agreeLogicPrompt = f"""
-        다음 법안에 대한 찬성 논리를 98자 작성해주세요:
+        다음 법안에 대한 찬성 논리를 100자 작성해주세요:
         법안 제목: {request.lawModifeidContent}
         찬성 논리는 법안의 장점, 사회적 필요성, 예상되는 긍정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
+
         disagreeLogicPrompt = f"""
-        다음 법안에 대한 반대 논리를 98자 이내로 작성해주세요:
+        다음 법안에 대한 반대 논리를 100자 이내로 작성해주세요:
         법안 제목: {request.lawModifeidContent}
         반대 논리는 법안의 단점, 사회적 우려, 예상되는 부정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
