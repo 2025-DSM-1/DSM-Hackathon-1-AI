@@ -148,7 +148,7 @@ async def law(request: BillRequest):
         # 문장 분리 및 BillResponseElement 리스트 생성
         summary_elements = [
             BillResponseElement(summaryElement=s.strip())
-            for s in summaryResponse2.text.split(".")
+            for s in summaryResponse1.text.split(".")
             if s.strip()
         ]
         return BillResponse(
