@@ -124,11 +124,15 @@ async def law(request: BillRequest):
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
 
         logger.info("법안 분석 완료")
+        # 문장 분리 및 BillResponseElement 리스트 생성
+        summary_elements = [
+            BillResponseElement(summaryElement=s.strip())
+            for s in summaryResponse2.text.split(".")
+            if s.strip()
+        ]
         return BillResponse(
             lawContent=summaryResponse1.text,
-            lawSummaryContent=[BillResponseElement].append(
-                summaryResponse2.text.split(".")
-            ),
+            lawSummaryContent=summary_elements,
             backgroundInfo=backgroundResponse.text,
             example=exampleResponse.text,
             agreeLogic=agreeLogicResponse.text,
