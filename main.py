@@ -76,7 +76,7 @@ async def law(request: BillRequest):
         """
 
         summaryPrompt2 = f"""
-        {summaryPrompt1}을 한줄로 요약한 내용을 작성해주세요.
+        {summaryPrompt1}을 한문장으로 요약한 내용을 작성해주세요.
         """
 
         backgroundPrompt = f"""
