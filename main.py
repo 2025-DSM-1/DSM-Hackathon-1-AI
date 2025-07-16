@@ -52,12 +52,12 @@ class BillResponse(BaseModel):
 @app.post("/law/summary", response_model=BillResponse)
 async def law(request: BillRequest):
     try:
-        logger.info(f"법안 분석 요청: {request.lawModifeidContent}")
+        logger.info(f"법안 분석 요청: {request.lawModifiedContent}")
 
         summaryPrompt = f"""
         다음 법안에 대해 간결하고 명확하게 요약해주세요:
 
-        법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifiedContent}
 
         요약 시 다음 사항을 포함해주세요:
         1. 법안의 주요 목적
@@ -70,7 +70,7 @@ async def law(request: BillRequest):
 
         backgroundPrompt = f"""
         다음 법안에 대한 배경 정보를 230자 이내로 제공해주세요:
-        법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifiedContent}
         배경 정보는 법안이 제정된 이유, 관련된 사회적 이슈, 역사적 맥락 등을 포함해야 합니다.
         가능한 한 구체적이고 상세하게 작성해주세요.
         """
@@ -78,7 +78,7 @@ async def law(request: BillRequest):
         examplePrompt = f"""
         다음 법안에 대한 사례를 제공해주세요:
 
-        법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifiedContent}
         예시는 법안의 적용 사례나 유사한 법안의 사례를 포함해야 합니다.
         가능한 한 구체적이고 실제적인 한가지의 예시를 작성해주세요.
         반드시 한가지여야합니다.
@@ -86,14 +86,14 @@ async def law(request: BillRequest):
 
         agreeLogicPrompt = f"""
         다음 법안에 대한 찬성 논리를 100자 작성해주세요:
-        법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifiedContent}
         찬성 논리는 법안의 장점, 사회적 필요성, 예상되는 긍정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
         disagreeLogicPrompt = f"""
         다음 법안에 대한 반대 논리를 100자 이내로 작성해주세요:
-        법안 제목: {request.lawModifeidContent}
+        법안 제목: {request.lawModifiedContent}
         반대 논리는 법안의 단점, 사회적 우려, 예상되는 부정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
