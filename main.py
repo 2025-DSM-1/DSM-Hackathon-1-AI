@@ -6,6 +6,7 @@ import os
 import logging
 import google.generativeai as genai
 from dotenv import load_dotenv
+import re
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +53,30 @@ class BillResponse(BaseModel):
     example: str = Field(..., description="법안 예시")
     agreeLogic: str = Field(..., description="법안에 대한 찬성 논리")
     disagreeLogic: str = Field(..., description="법안에 대한 반대 논리")
+
+
+def clean_markdown(text):
+    # 마크다운 기호 제거
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)  # **굵은 글씨** 제거
+    text = re.sub(r"\*(.*?)\*", r"\1", text)  # *기울임체* 제거
+    text = re.sub(r"#+\s", "", text)  # # 제목 제거
+    text = re.sub(r"`(.*?)`", r"\1", text)  # `코드` 제거
+    text = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", text)  # [링크](url) 제거
+    text = re.sub(r"---", "", text)  # 구분선 제거
+    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)  # 코드 블록 제거
+
+    # 글머리 기호 제거 및 정리
+    text = re.sub(
+        r"^\s*[\*\-•]\s+", "", text, flags=re.MULTILINE
+    )  # 줄 시작의 글머리 기호 제거
+    text = re.sub(
+        r"\n\s*[\*\-•]\s+", "\n", text
+    )  # 줄 중간의 글머리 기호를 줄바꿈으로 변경
+
+    # 빈 줄 정리
+    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)  # 3개 이상 연속된 줄바꿈을 2개로 정리
+
+    return text.strip()
 
 
 @app.post("/law/summary", response_model=BillResponse)
@@ -109,15 +134,13 @@ async def law(request: BillRequest):
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
-        essentialPrompt = "*, **, #, ##과 같은 마크다운은 반드시 사용하지마세요. 어떠한 경우에도 사용하지 마세요"
-
-        summaryResponse1 = model.generate_content(essentialPrompt + summaryPrompt1)
-        summaryResponse2 = model.generate_content(essentialPrompt + summaryPrompt2)
-        backgroundResponse = model.generate_content(essentialPrompt + backgroundPrompt)
-        exampleResponse = model.generate_content(essentialPrompt + examplePrompt)
-        agreeLogicResponse = model.generate_content(essentialPrompt + agreeLogicPrompt)
+        summaryResponse1 = model.generate_content(clean_markdown(summaryPrompt1))
+        summaryResponse2 = model.generate_content(clean_markdown(summaryPrompt2))
+        backgroundResponse = model.generate_content(clean_markdown(backgroundPrompt))
+        exampleResponse = model.generate_content(clean_markdown(examplePrompt))
+        agreeLogicResponse = model.generate_content(clean_markdown(agreeLogicPrompt))
         disagreeLogicResponse = model.generate_content(
-            essentialPrompt + disagreeLogicPrompt
+            clean_markdown(disagreeLogicPrompt)
         )
 
         if not summaryResponse1.text:
