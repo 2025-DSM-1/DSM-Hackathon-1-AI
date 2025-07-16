@@ -41,8 +41,13 @@ class BillRequest(BaseModel):
     lawModifiedContent: str
 
 
+class BillResponseElement(BaseModel):
+    summaryElement: str
+
+
 class BillResponse(BaseModel):
-    lawSummary: str = Field(..., description="AI가 생성한 법안 요약")
+    lawContent: str = Field(..., description="법안 한줄 요약")
+    lawSummaryContent: list[BillResponseElement]
     backgroundInfo: str = Field(..., description="법안 배경 정보")
     example: str = Field(..., description="법안 예시")
     agreeLogic: str = Field(..., description="법안에 대한 찬성 논리")
@@ -52,12 +57,14 @@ class BillResponse(BaseModel):
 @app.post("/law/summary", response_model=BillResponse)
 async def law(request: BillRequest):
     try:
-        logger.info(f"법안 분석 요청: {request.lawModifiedContent}")
+        req = request.lawModifiedContent
 
-        summaryPrompt = f"""
+        logger.info(f"법안 분석 요청: {req}")
+
+        summaryPrompt1 = f"""
         다음 법안에 대해 간결하고 명확하게 요약해주세요:
 
-        법안 제목: {request.lawModifiedContent}
+        법안 제목: {req}
 
         요약 시 다음 사항을 포함해주세요:
         1. 법안의 주요 목적
@@ -65,12 +72,16 @@ async def law(request: BillRequest):
         3. 예상되는 영향
         4. 주요 변경사항
 
-        간결하고 이해하기 쉽게 100자 이내로 작성해주세요.
+        간결하고 이해하기 쉽게 100자 이내로 3문장으로 작성해주세요.
+        """
+
+        summaryPrompt2 = f"""
+        {summaryPrompt1}을 한줄로 요약한 내용을 작성해주세요.
         """
 
         backgroundPrompt = f"""
         다음 법안에 대한 배경 정보를 230자 이내로 제공해주세요:
-        법안 제목: {request.lawModifiedContent}
+        법안 제목: {req}
         배경 정보는 법안이 제정된 이유, 관련된 사회적 이슈, 역사적 맥락 등을 포함해야 합니다.
         가능한 한 구체적이고 상세하게 작성해주세요.
         """
@@ -78,7 +89,7 @@ async def law(request: BillRequest):
         examplePrompt = f"""
         다음 법안에 대한 사례를 제공해주세요:
 
-        법안 제목: {request.lawModifiedContent}
+        법안 제목: {req}
         예시는 법안의 적용 사례나 유사한 법안의 사례를 포함해야 합니다.
         가능한 한 구체적이고 실제적인 한가지의 예시를 작성해주세요.
         반드시 한가지여야합니다.
@@ -86,21 +97,22 @@ async def law(request: BillRequest):
 
         agreeLogicPrompt = f"""
         다음 법안에 대한 찬성 논리를 100자 작성해주세요:
-        법안 제목: {request.lawModifiedContent}
+        법안 제목: {req}
         찬성 논리는 법안의 장점, 사회적 필요성, 예상되는 긍정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
         disagreeLogicPrompt = f"""
         다음 법안에 대한 반대 논리를 100자 이내로 작성해주세요:
-        법안 제목: {request.lawModifiedContent}
+        법안 제목: {req}
         반대 논리는 법안의 단점, 사회적 우려, 예상되는 부정적 영향 등을 포함해야 합니다.
         가능한 한 설득력 있고 논리적으로 작성해주세요.
         """
 
         essentialPrompt = "*, **, #, ##과 같은 마크다운은 반드시 사용하지마세요. 어떠한 경우에도 사용하지 마세요"
 
-        summaryResponse = model.generate_content(essentialPrompt + summaryPrompt)
+        summaryResponse1 = model.generate_content(essentialPrompt + summaryPrompt1)
+        summaryResponse2 = model.generate_content(essentialPrompt + summaryPrompt2)
         backgroundResponse = model.generate_content(essentialPrompt + backgroundPrompt)
         exampleResponse = model.generate_content(essentialPrompt + examplePrompt)
         agreeLogicResponse = model.generate_content(essentialPrompt + agreeLogicPrompt)
@@ -108,12 +120,15 @@ async def law(request: BillRequest):
             essentialPrompt + disagreeLogicPrompt
         )
 
-        if not summaryResponse.text:
+        if not summaryResponse1.text:
             raise HTTPException(status_code=500, detail="AI 응답이 비어있습니다.")
 
         logger.info("법안 분석 완료")
         return BillResponse(
-            lawSummary=summaryResponse.text,
+            lawContent=summaryResponse1.text,
+            lawSummaryContent=[BillResponseElement].append(
+                summaryResponse2.text.split(".")
+            ),
             backgroundInfo=backgroundResponse.text,
             example=exampleResponse.text,
             agreeLogic=agreeLogicResponse.text,
